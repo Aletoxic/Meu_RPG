@@ -9,6 +9,7 @@ const jogador = {
     Esta_vivo: true,
     classe: "Paladino",
     Xp_maximo: 1000,
+    Arma: "Espada reta",
 };
 
 console.log('\n===Ficha de atributos do jogador 1:===')
@@ -22,6 +23,7 @@ console.log(`O ouro do jogador 1 é: ${jogador.Ouro}`)
 console.log(`O jogador 1 está vivo? ${jogador.Esta_vivo}`)
 console.log(`A classe do jogador 1 é: ${jogador.classe}`)
 console.log(`O xp máximo do jogador 1 é: ${jogador.Xp_maximo}\n`)
+console.log(`A arma do jogador 1 é: ${jogador.Arma}\n`)
 
 
 const inimigo = {
