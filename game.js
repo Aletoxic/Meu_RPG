@@ -35,6 +35,28 @@ const inimigo = {
     ouro_ganho: 1,
 };
 
+// === Definindo a força do usuário=== //
+let forcaTotal = heroi.ataque + heroi.nivel * 2;
+console.log(`Força total do herói: ${forcaTotal}`);
+
+// === Definindo dano ao usuário por armadilha e/ou ataque === //
+let dano = 15;
+heroi.vida = heroi.vida - dano;
+console.log(`Armadilha! O herói perdeu ${dano} de vida.`);
+console.log(`Vida atual: ${heroi.vida}`);
+heroi.vida -= 10;   
+console.log(`Levou outro golpe. Vida atual em: ${heroi.vida}`);
+
+// === Definindo a cura dos status de vida do usuário === //
+heroi.vida += 30;
+console.log(`Depois de descansar, vida: ${heroi.vida}`);
+let percentual = (heroi.vida / heroi.vidaMaxima) * 100;
+console.log(`Vida: ${percentual}% do total`);
+
+// === Definindo o poder do heroi === //
+let poder = heroi.ataque * 2 + heroi.defesa + heroi.nivel * 5;
+console.log(`Poder de combate: ${poder}`);
+
 console.log('\n===Ficha de atributos do inimigo:===')
 console.log(`O nome do inimigo é: ${inimigo.nome}`)
 console.log(`A vida do inimigo é: ${inimigo.vida}`)
