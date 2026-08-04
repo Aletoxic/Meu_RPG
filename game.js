@@ -29,27 +29,30 @@ function criarInimigo(nome, classe, vida, vidaMaxima, defesa, ataque, ouro, xpMa
             return this.vida > 0;
         },
         ouro: ouro,
-        xpMaximo: xpMaximo,
+        xpMaximo: xpMaximo
     }
 }
 
 function mostrarficha(mob){
     console.log('\n===Ficha de atributos do ' + mob.nome + ':===')
-    console.log('O nome do jogador é: ' + mob.nome)
-    console.log('A vida do jogador é: ' + mob.vida)
-    console.log('A vida máxima do jogador é: ' + mob.vidaMaxima)
-    console.log('A defesa do jogador é: ' + mob.defesa)
-    console.log('O ataque do jogador é: ' + mob.ataque)
-    console.log('O xp do jogador é: ' + mob.xpMaximo)
-    console.log('O ouro do jogador é: ' + mob.ouro)
-    console.log('O jogador está vivo? ' + mob.estaVivo())
-    console.log('A classe do jogador é: ' + mob.classe)
-    console.log('O xp máximo do jogador é: ' + mob.xpMaximo)
+    console.log('O nome do mob: ' + mob.nome)
+    console.log('A vida do mob é: ' + mob.vida)
+    console.log('A vida máxima do mob é: ' + mob.vidaMaxima)
+    console.log('A defesa do mob é: ' + mob.defesa)
+    console.log('O ataque do mob é: ' + mob.ataque)
+    console.log('O xp do mob é: ' + mob.xp)
+    console.log('O ouro do mob é: ' + mob.ouro)
+    console.log('O mob está vivo? ' + mob.estaVivo())
+    console.log('A classe do mob é: ' + mob.classe)
+    console.log('O xp máximo do mob é: ' + mob.xpMaximo)
 }
 
 function descansar(jogador) {
     if(jogador.vida === jogador.vidaMaxima){
         console.log('O heroi insite que pode continuar a lutar, sem descansar')
+    }
+    if(jogador.vida <= 100){
+        console.log('O heroi está gravimente debilitado e não consegue descansar, dado o seu estado, ele não consegue se reculperar')
     }
     else{
         let vida_inicial = jogador.vida;
@@ -62,18 +65,24 @@ function descansar(jogador) {
         }
 }
 
-function poder_total(jogador){ 
-    forcaTotal = jogador.ataque + jogador.defesa + jogador.nivel * 2;
+function força_total(jogador){ 
+    let forcaTotal = jogador.ataque + jogador.defesa + jogador.nivel * 2;
     console.log('A força total do heroi é: ' + forcaTotal)
 }
-
+if (força_total(jogador) > 100) {
+    console.log('${jogador.nome} é um peregrino comum, que está começando a sua jornada')
+} else if(força_total(jogador) > 200) {
+    console.log('${jogador.nome} é um guerreiro formidável, porém a jornada dele está longe de acabar')
+} else {
+    console.log('${jogador.nome} é um heroi em formação')
+}
 const jogador = criarHeroi("Alexandre", "Mago")
 const inimigo = criarInimigo("Goblin", "Monstro", 20, 20, 5, 10, 1, 10)
 
 mostrarficha(inimigo)
 mostrarficha(jogador)
 descansar(jogador)
-poder_total(jogador)
+força_total(jogador)
 
 // === Definindo dano ao usuário por armadilha e/ou ataque === 
 //let dano = 15;
@@ -90,3 +99,5 @@ poder_total(jogador)
 
 //Para execultar um arquivo JavaScript no terminal, utilize o comando: node nome_do_arquivo.js
 //Lembrando que tem que estar no diretório do arquivo para executar o comando acima.
+
+//Fix, add, delete, update, refatorar,
