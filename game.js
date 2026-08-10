@@ -97,11 +97,17 @@ function compararforça(mob1, mob2) {
 }// As ordens de cada atributo são: nome, classe, vida, vidaMaxima, defesa, ataque, nivel, xp, ouro, xpMaximo
 const jogador = criarHeroi("Alexandre", "Mago", 100, 100, 10, 20, 1, 0, 0, 1000)
 const inimigo = criarInimigo("Goblin", "Monstro", 20, 20, 5, 10, 1, 10, 100, 1000)
+const inimigo2 = criarInimigo("Orc", "Monstro", 50, 50, 15, 25, 2, 20, 200, 1000)
+const inimigo3 = criarInimigo("Morto vivo", "Monstro", 80, 80, 20, 30, 3, 30, 300, 1000)
 
 mostrarficha(inimigo)
+mostrarficha(inimigo2)
+mostrarficha(inimigo3)
 mostrarficha(jogador)
 descansar(jogador)
 compararforça(jogador, inimigo)
+compararforça(jogador, inimigo2)
+compararforça(jogador, inimigo3)
 definir_nivel(jogador)
 
 // === Definindo dano ao usuário por armadilha e/ou ataque === 
