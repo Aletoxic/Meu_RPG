@@ -1,3 +1,10 @@
+const readline = require('readline');
+
+const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout
+});
+
 function criarHeroi(nome, classe, vida, vidaMaxima, defesa, ataque, velocidade, nivel, xp, ouro, xpMaximo) {
     return {
         nome: nome,
@@ -71,7 +78,7 @@ function atacar(atacante, defensor) {
 function atacar_verificar(atacante, defensor, jogador){
     atacar(atacante, defensor)
     if(!defensor.estaVivo()){
-        console.log(`${defensor.nome} foi abatido em combate`)
+        console.log(`${defensor.nome} foi abatido em combate\n`)
         if(defensor === jogador){
             penalidade_morte(jogador)
         }else{
@@ -98,6 +105,47 @@ function ganhar_espolios(jogador, defensor) {
     console.log(`${jogador.nome} derrotou ${defensor.nome} e ganhou ${defensor.ouro} de ouro e ${defensor.xp} de experiência.`);
 }
 
+// === Laço de combate === //
+function batalhar(atacante, defensor, jogador) {
+    console.log(`A batalha entre ${atacante.nome} e ${defensor.nome} começou!`);
+
+    let turno = 1;
+
+    while (atacante.estaVivo() && defensor.estaVivo()) {
+        console.log(`\n=== Turno ${turno} ===`);
+        atacar_verificar(atacante, defensor, jogador);
+
+        if (!defensor.estaVivo()) {
+            break;
+        } else {
+            atacar_verificar(defensor, atacante, jogador);
+        }
+        turno++;
+    }
+
+    if (jogador.estaVivo()) {
+        console.log(`\n${jogador.nome} terminou a batalha com ${jogador.vida} pontos de vida restantes.`);
+        console.log(`O ouro atual de ${jogador.nome} é: ${jogador.ouro}`);
+        console.log(`A experiência atual de ${jogador.nome} é: ${jogador.xp}`);
+        console.log(`Falta apenas ${jogador.xpMaximo - jogador.xp} de experiência para evoluir de nível.`);
+        rl.question(
+            `Você deseja que ${jogador.nome} descanse? (sim/não): `,
+            (resposta) => {
+
+                if (resposta.toLowerCase() === 'sim') {
+                    descansar(jogador);
+                } else if (resposta.toLowerCase() === 'não' || resposta.toLowerCase() === 'nao') {
+                    console.log(`${jogador.nome} decidiu continuar sua jornada.`);
+                }else {
+                    console.log('O herói não entendeu o seu desejo, você quer que ele descanse? sim ou não.');
+                }
+                rl.close();
+            }
+        );
+    }
+}
+
+// === Função de descanso do jogador === //
 function descansar(jogador) {
     if(jogador.vida === jogador.vidaMaxima){
         console.log('O heroi insite que pode continuar a lutar, sem descansar.')
@@ -162,8 +210,7 @@ const inimigo4 = criarInimigo("Vasto Lorde das Ruinas", "Monstro", 10000, 10000,
 //compararforça(jogador, inimigo2)
 //compararforça(jogador, inimigo3)
 //definir_nivel(jogador)
-atacar_verificar(jogador, inimigo1, jogador)
-atacar_verificar(jogador, inimigo1, jogador)
+batalhar(jogador, inimigo4, jogador)
 
 // === Definindo dano ao usuário por armadilha e/ou ataque === 
 //let dano = 15;
