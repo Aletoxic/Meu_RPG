@@ -1,3 +1,4 @@
+const { exit } = require('process');
 const readline = require('readline');
 
 const rl = readline.createInterface({
@@ -18,7 +19,7 @@ function criarHeroi(nome, classe, vida, vidaMaxima, defesa, ataque, velocidade, 
         xp: xp,
         ouro: ouro,
         xpMaximo: xpMaximo,
-        inventário: [],
+        inventario: [],
         estaVivo() {
             return this.vida > 0;
         }
@@ -105,8 +106,15 @@ function ganhar_espolios(jogador, defensor) {
     console.log(`${jogador.nome} derrotou ${defensor.nome} e ganhou ${defensor.ouro} de ouro e ${defensor.xp} de experiência.`);
 }
 
-// === Laço de combate === //
-function batalhar(atacante, defensor, jogador) {
+// === Loop de combate === //
+function perguntar(pergunta) {
+    return new Promise((resolve) => {
+        rl.question(pergunta, (resposta) => {
+            resolve(resposta);
+        });
+    });
+}
+async function batalhar(atacante, defensor, jogador) {
     console.log(`A batalha entre ${atacante.nome} e ${defensor.nome} começou!`);
 
     let turno = 1;
@@ -114,34 +122,40 @@ function batalhar(atacante, defensor, jogador) {
     while (atacante.estaVivo() && defensor.estaVivo()) {
         console.log(`\n=== Turno ${turno} ===`);
         atacar_verificar(atacante, defensor, jogador);
-
         if (!defensor.estaVivo()) {
             break;
-        } else {
-            atacar_verificar(defensor, atacante, jogador);
         }
+        atacar_verificar(defensor, atacante, jogador);
         turno++;
     }
-
+    
     if (jogador.estaVivo()) {
         console.log(`\n${jogador.nome} terminou a batalha com ${jogador.vida} pontos de vida restantes.`);
         console.log(`O ouro atual de ${jogador.nome} é: ${jogador.ouro}`);
         console.log(`A experiência atual de ${jogador.nome} é: ${jogador.xp}`);
         console.log(`Falta apenas ${jogador.xpMaximo - jogador.xp} de experiência para evoluir de nível.`);
-        rl.question(
-            `Você deseja que ${jogador.nome} descanse? (sim/não): `,
-            (resposta) => {
 
-                if (resposta.toLowerCase() === 'sim') {
-                    descansar(jogador);
-                } else if (resposta.toLowerCase() === 'não' || resposta.toLowerCase() === 'nao') {
-                    console.log(`${jogador.nome} decidiu continuar sua jornada.`);
-                }else {
-                    console.log('O herói não entendeu o seu desejo, você quer que ele descanse? sim ou não.');
-                }
-                rl.close();
-            }
+        const resposta = await perguntar(
+            `Você deseja que ${jogador.nome} descanse? (sim/não): `
         );
+
+        if (resposta.toLowerCase() === 'sim') {
+
+            descansar(jogador);
+
+        } else if (
+            resposta.toLowerCase() === 'não' ||
+            resposta.toLowerCase() === 'nao'
+        ) {
+
+            console.log(`${jogador.nome} decidiu continuar sua jornada.`);
+
+        } else {
+
+            console.log(
+                'O herói não entendeu o seu desejo, você quer que ele descanse? sim ou não.'
+            );
+        }
     }
 }
 
@@ -191,14 +205,43 @@ function compararforça(mob1, mob2) {
         console.log(`${mob1.nome} e ${mob2.nome} possuem a mesma força.`)
     }
 }
+async function iniciarMasmorra() {
 
+    for (let i = 0; i < masmorra.length; i++) {
+
+        if (!jogador.estaVivo()) {
+            break;
+        }
+
+        console.log(`\n=== Andar ${i + 1} ===`);
+        console.log(`Um ${masmorra[i].nome} apareceu!`);
+
+        await batalhar(jogador, masmorra[i], jogador);
+    }
+
+    rl.close();
+}
+// === inventário do jogador === ///
+const itens = ["Poção de Vida", "Espada Velha", "Escudo de Madeira"]; 
 
 // As ordens de cada atributo são: nome, classe, vida, vidaMaxima, defesa, ataque, velocidade, nivel, xp, ouro, xpMaximo
 const jogador = criarHeroi("Alexandre", "Mago", 100, 100, 10, 20, 5, 1, 0, 0, 1000)
-const inimigo1 = criarInimigo("Goblin", "Monstro", 20, 20, 5, 10, 6, 1, 10, 10, 0)
-const inimigo2 = criarInimigo("Orc", "Monstro", 50, 50, 15, 25, 2, 2, 20, 20, 0)
-const inimigo3 = criarInimigo("Morto vivo", "Monstro", 80, 80, 20, 30, 3, 3, 15, 17, 0)
-const inimigo4 = criarInimigo("Vasto Lorde das Ruinas", "Monstro", 10000, 10000, 400, 500, 100, 100, 5000, 50000, 0)
+
+// === Invetário do jogador === //
+
+jogador.inventario.push(itens[2]);
+console.log(`Itens no inventário: ${jogador.inventario}`);
+
+// ===Definindo os inimigos que vão aparecer em cada andar === //
+const masmorra = [
+    criarInimigo("Goblin", "Monstro", 20, 20, 5, 10, 6, 1, 10, 10, 0),
+    criarInimigo("Orc", "Monstro", 50, 50, 15, 25, 2, 2, 20, 20, 0),
+    criarInimigo("Morto vivo", "Monstro", 80, 80, 20, 30, 3, 3, 15, 17, 0),
+    criarInimigo("Vasto Lorde das Ruinas", "Monstro", 10000, 10000, 400, 500, 100, 100, 5000, 50000, 0),
+];
+
+
+iniciarMasmorra()
 
 // === Lista de comandos criada === //
 //mostrarficha(inimigo)
@@ -210,7 +253,7 @@ const inimigo4 = criarInimigo("Vasto Lorde das Ruinas", "Monstro", 10000, 10000,
 //compararforça(jogador, inimigo2)
 //compararforça(jogador, inimigo3)
 //definir_nivel(jogador)
-batalhar(jogador, inimigo4, jogador)
+//batalhar(jogador, inimigo1, jogador)
 
 // === Definindo dano ao usuário por armadilha e/ou ataque === 
 //let dano = 15;
@@ -227,5 +270,4 @@ batalhar(jogador, inimigo4, jogador)
 
 //Para execultar um arquivo JavaScript no terminal, utilize o comando: node nome_do_arquivo.js
 //Lembrando que tem que estar no diretório do arquivo para executar o comando acima.
-
 //Fix, add, delete, update, refatorar,
