@@ -6,24 +6,62 @@ const rl = readline.createInterface({
     output: process.stdout
 });
 
-function criarHeroi(nome, classe, vida, vidaMaxima, defesa, ataque, velocidade, nivel, xp, ouro, xpMaximo) {
-    return {
-        nome: nome,
-        classe: classe,
-        vida: vida,
-        vidaMaxima: vidaMaxima,
-        defesa: defesa,
-        ataque: ataque,
-        velocidade: velocidade,
-        nivel: nivel,        
-        xp: xp,
-        ouro: ouro,
-        xpMaximo: xpMaximo,
-        inventario: [],
-        estaVivo() {
-            return this.vida > 0;
+function criarHeroi(nome, classe, vida, vidaMaxima, defesa, ataque, velocidade, nivel, xp, ouro, xpMaximo) { 
+    return { 
+        nome: nome, 
+        classe: classe, 
+        vida: vida, 
+        vidaMaxima: vidaMaxima, 
+        defesa: defesa, 
+        ataque: ataque, 
+        velocidade: velocidade, 
+        nivel: nivel,         
+        xp: xp, 
+        ouro: ouro, 
+        xpMaximo: xpMaximo, 
+        inventario: [], 
+
+        estaVivo() { 
+            return this.vida > 0; 
+        }, 
+ 
+        curar(quantidade){ 
+            this.vida += quantidade; 
+
+            if(this.vida > this.vidaMaxima){ 
+                this.vida = this.vidaMaxima; 
+            } 
+
+            console.log(`${this.nome} recuperou ${quantidade} de pontos de vida`);
+        }, 
+ 
+        mostrarficha_resumida(){ 
+            console.log(`=== ${this.nome} (Nv. ${this.nivel})`);
+            console.log(`Vida: ${this.vida} | Ataque: ${this.ataque} | Defesa: ${this.defesa}`); 
+        },
+
+        descansar(){ 
+            if(this.vida === this.vidaMaxima){ 
+                console.log('O herói insiste que pode continuar a lutar, sem descansar.'); 
+
+            } else if(this.vida < 10){ 
+                console.log('O herói está gravemente debilitado e não consegue descansar.'); 
+
+            } else { 
+                let vida_inicial = this.vida; 
+
+                this.vida += 30; 
+
+                if(this.vida > this.vidaMaxima){ 
+                    this.vida = this.vidaMaxima; 
+                } 
+ 
+                let vida_recuperada = this.vida - vida_inicial; 
+
+                console.log(`${this.nome} recuperou ${vida_recuperada} de vida.`); 
+            } 
         }
-    }
+    } 
 }
 
 function criarInimigo(nome, classe, vida, vidaMaxima, defesa, ataque, velocidade, nivel, xp, ouro, xpMaximo) {
@@ -41,11 +79,16 @@ function criarInimigo(nome, classe, vida, vidaMaxima, defesa, ataque, velocidade
         xpMaximo: xpMaximo,
         estaVivo(){
             return this.vida > 0;
+        },
+
+        mostrarficha_resumida(){
+            console.log(`=== ${this.nome} (Nv. ${this.nivel})`);
+            console.log(`Vida: ${this.vida} | Ataque: ${this.ataque} | Defesa: ${this.defesa}`);
         }
     }
 }
 
-function mostrarficha(mob){
+function mostrarFicha(mob){
     console.log('\n===Ficha de atributos do ' + mob.nome + ':===')
     console.log('O nome do ' + mob.classe + ' é: ' + mob.nome)
     console.log('A vida do ' + mob.classe + ' é: ' + mob.vida)
@@ -118,7 +161,6 @@ async function batalhar(atacante, defensor, jogador) {
     console.log(`A batalha entre ${atacante.nome} e ${defensor.nome} começou!`);
 
     let turno = 1;
-
     while (atacante.estaVivo() && defensor.estaVivo()) {
         console.log(`\n=== Turno ${turno} ===`);
         atacar_verificar(atacante, defensor, jogador);
@@ -128,7 +170,6 @@ async function batalhar(atacante, defensor, jogador) {
         atacar_verificar(defensor, atacante, jogador);
         turno++;
     }
-    
     if (jogador.estaVivo()) {
         console.log(`\n${jogador.nome} terminou a batalha com ${jogador.vida} pontos de vida restantes.`);
         console.log(`O ouro atual de ${jogador.nome} é: ${jogador.ouro}`);
@@ -138,20 +179,12 @@ async function batalhar(atacante, defensor, jogador) {
         const resposta = await perguntar(
             `Você deseja que ${jogador.nome} descanse? (sim/não): `
         );
-
         if (resposta.toLowerCase() === 'sim') {
-
-            descansar(jogador);
-
+            jogador.descansar()
         } else if (
-            resposta.toLowerCase() === 'não' ||
-            resposta.toLowerCase() === 'nao'
-        ) {
-
+            resposta.toLowerCase() === 'não' || resposta.toLowerCase() === 'nao') {
             console.log(`${jogador.nome} decidiu continuar sua jornada.`);
-
         } else {
-
             console.log(
                 'O herói não entendeu o seu desejo, você quer que ele descanse? sim ou não.'
             );
@@ -159,22 +192,6 @@ async function batalhar(atacante, defensor, jogador) {
     }
 }
 
-// === Função de descanso do jogador === //
-function descansar(jogador) {
-    if(jogador.vida === jogador.vidaMaxima){
-        console.log('O heroi insite que pode continuar a lutar, sem descansar.')
-    }else if(jogador.vida < 10){
-        console.log('O heroi está gravimente debilitado e não consegue descansar, dado o seu estado, ele não consegue se reculperar.')
-    }else{
-        let vida_inicial = jogador.vida;
-        jogador.vida += 30;
-            if (jogador.vida > jogador.vidaMaxima) {
-                jogador.vida = jogador.vidaMaxima;
-            }
-            let vida_recuperada = jogador.vida - vida_inicial;
-            console.log('O heroi reculperou suas energias e recuperou ' + vida_recuperada + ' de vida.')
-        }
-}
 
 function força_total(mob){ 
     let forcaTotal = mob.ataque + mob.defesa + mob.velocidade + mob.nivel * 2;
@@ -205,6 +222,7 @@ function compararforça(mob1, mob2) {
         console.log(`${mob1.nome} e ${mob2.nome} possuem a mesma força.`)
     }
 }
+
 async function iniciarMasmorra() {
 
     for (let i = 0; i < masmorra.length; i++) {
@@ -215,10 +233,8 @@ async function iniciarMasmorra() {
 
         console.log(`\n=== Andar ${i + 1} ===`);
         console.log(`Um ${masmorra[i].nome} apareceu!`);
-
         await batalhar(jogador, masmorra[i], jogador);
     }
-
     rl.close();
 }
 // === inventário do jogador === ///
