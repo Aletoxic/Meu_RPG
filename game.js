@@ -308,8 +308,6 @@ function limparLog(){
     document.getElementById("log").innerHTML = "";
 }
 
-limparLog()
-
 rederFicha(jogador){
     escreverLog("Você entra na masmorra");
 }
