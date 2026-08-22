@@ -18,7 +18,6 @@ function criarHeroi(nome, classe, vida, vidaMaxima, defesa, ataque, velocidade, 
         nivel: nivel,         
         xp: xp, 
         ouro: ouro, 
-        xpMaximo: xpMaximo, 
         inventario: [], 
 
         estaVivo() { 
@@ -30,10 +29,20 @@ function criarHeroi(nome, classe, vida, vidaMaxima, defesa, ataque, velocidade, 
             if(this.vida > this.vidaMaxima){ 
                 this.vida = this.vidaMaxima; 
             } 
-
             console.log(`${this.nome} recuperou ${quantidade} de pontos de vida`);
         }, 
- 
+        
+        usar_pocao(){
+        for( let i = 0; i < jogador.inventario.length; i++){
+            if (heroi.inventario[i].tipo === "pocao"){
+                this.curar(jogador.inventario[i].efeito);
+                jogador.inventario.splice(i, 1);
+            }
+        }
+        console.log("Você não possui poções.")
+
+        },
+
         mostrarficha_resumida(){ 
             console.log(`=== ${this.nome} (Nv. ${this.nivel})`);
             console.log(`Vida: ${this.vida} | Ataque: ${this.ataque} | Defesa: ${this.defesa}`); 
@@ -45,18 +54,12 @@ function criarHeroi(nome, classe, vida, vidaMaxima, defesa, ataque, velocidade, 
             } else if(this.vida < 10){ 
                 console.log('O herói está gravemente debilitado e não consegue descansar.'); 
             } else { 
-                let vida_inicial = this.vida; 
-                this.vida += 30; 
-                if(this.vida > this.vidaMaxima){ 
-                    this.vida = this.vidaMaxima; 
-                } 
- 
-                let vida_recuperada = this.vida - vida_inicial; 
-                console.log(`${this.nome} recuperou ${vida_recuperada} de vida.`); 
+                this.curar (30);  
             }
-        }
+        },
 
         subir_nivel(){
+            // A linha abaixo está dizendo que: para ele subir de nível, ele precisa ganhar uma quantidade de xp equivalente ao nível dele vezes 100.
             this.xp -= this.nivel * 100;
             this.nivel += 1;
             this.vidaMaxima += 20;
@@ -64,11 +67,58 @@ function criarHeroi(nome, classe, vida, vidaMaxima, defesa, ataque, velocidade, 
             this.defesa += 1;
             this.vida = this.vidaMaxima
             console.log(`${this.nome} subiu para o nível ${this.nivel}!`);
+        },
+
+        ganhar_xp(quantidade){
+            this.xp += quantidade;
+            console.log(`${this.nome} ganhou ${quantidade}`)
+            while(this.xp >= this.nivel *100){
+                this.subir_nivel();
+            }
+        },
+
+        ganhar_ouro(quantidade){
+            this.ouro += quantidade;
+            console.log(`${this.nome} ganhou ${quantidade}`)
+        },
+
+        comprar(loja){
+
+            console.log("Olá, pequeno aventureiro, olhe meus itens: "); 
+            for(let i = 0; loja.lenght; i++){
+                console.log(`${loja[i].nome}, ${loja[i].preco}`)
+            }
+
+            for(let i = 0; loja.lenght; i++){
+                console.log(`${loja[i].nome}, ${loja[i].preco}`)
+                const resposta = await perguntar( 
+                    console.log("Deseja comprar este valioso item? ")
+                )
+                if (resposta.toLowerCase() === 'sim') {
+                    if(this.ouro < loja[i].preco){
+                        console.log("Você tenta comprar o item, mas o vendendor franse a testa e fala que você não tem dinheiro o suficiente.");
+                    return;
+                    }else{
+                        this.ouro -= loja[i].preco;
+                        if(loja[i].tipo === "arma"){
+                            this.ataque += loja[i].efeito;
+                        }else if(loja[i].tipo === "armadura"){
+                            this.defesa += loja[i].efeito;
+                        }else{
+                            this.inventario.push(item);
+                        }
+                    }
+                    console.log(`${this.nome} comprou ${loja[i].nome}. Ouro restante: ${this.ouro}`);
+                } 
+                if (resposta.toLowerCase() === 'não' || resposta.toLowerCase() === 'nao') {
+                    console.log("O jogador opta por não comprar e observa o próximo item.")
+                }
+            }
         }
-    } 
+    }   
 }
 
-function rederficha(jogador){
+function renderficha(jogador){
     const caixa = document.getElementById("ficha");
     caixa.innerHTML = `
     <h2>${jogador.nome} — Nível ${jogador.nivel}</h2>
@@ -77,7 +127,8 @@ function rederficha(jogador){
     <p>Ouro: ${jogador.ouro} | Xp: ${jogador.xp}</p>
     `;
 }
-rederficha(jogador);
+
+renderficha(jogador);
 
 function criarInimigo(nome, classe, vida, vidaMaxima, defesa, ataque, velocidade, nivel, xp, ouro, xpMaximo) {
     return {
@@ -91,7 +142,6 @@ function criarInimigo(nome, classe, vida, vidaMaxima, defesa, ataque, velocidade
         nivel: nivel,
         xp: xp,
         ouro: ouro,
-        xpMaximo: xpMaximo,
         estaVivo(){
             return this.vida > 0;
         },
@@ -102,7 +152,7 @@ function criarInimigo(nome, classe, vida, vidaMaxima, defesa, ataque, velocidade
         }
     }
 }
-
+ 
 function renderInimigo(inimigo) {
   const caixa = document.getElementById("inimigo");
   if (inimigo === undefined || !inimigo.estaVivo()) {
@@ -133,7 +183,6 @@ function mostrarFicha(mob){
     console.log('O xp do ' + mob.classe + ' é: ' + mob.xp)
     console.log('O ouro do ' + mob.classe + ' é: ' + mob.ouro)
     console.log('O ' + mob.classe + ' está vivo? ' + mob.estaVivo())
-    console.log('O xp máximo do ' + mob.classe + ' é: ' + mob.xpMaximo)
 }
 
 // === Dinâmica de combate === //
@@ -158,7 +207,8 @@ function atacar_verificar(atacante, defensor, jogador){
         if(defensor === jogador){
             penalidade_morte(jogador)
         }else{
-            ganhar_espolios(jogador, defensor)
+            ganhar_ouro(defensor.ouro);
+            ganhar_xp(defensor.xp);
         }
     }
 }
@@ -174,15 +224,6 @@ function penalidade_morte(jogador) {
     console.log(`Você perdeu todo seu ouro e experiência, porém, sua integridade mental permanece.`);
 }
 
-function ganhar_espolios(jogador, defensor) {
-    jogador.ouro += defensor.ouro;
-    jogador.xp += defensor.xp;
-    while(this.xp >= this.nivel *100){
-        this.subir_nivel();
-    }
-    console.log(`${jogador.nome} derrotou ${defensor.nome} e ganhou ${defensor.ouro} de ouro e ${defensor.xp} de experiência.`);
-}
-
 // === Loop de combate === //
 function perguntar(pergunta) {
     return new Promise((resolve) => {
@@ -191,6 +232,7 @@ function perguntar(pergunta) {
         });
     });
 }
+
 async function batalhar(atacante, defensor, jogador) {
     console.log(`A batalha entre ${atacante.nome} e ${defensor.nome} começou!`);
 
@@ -257,32 +299,6 @@ function compararforça(mob1, mob2) {
     }
 }
 
-function comprar(jogador, item){
-    if(jogador.ouro > item.preco){
-        console.log("Você tenta comprar o item, mas o vendendor franse a testa e fala que você não tem dinheiro o suficiente.");
-        return;
-    }
-    jogador.ouro -= item.preco;
-    if(item.preco === "arma") {
-        jogador.ataque += item.efeito;
-    }else if(item.preco === "armadura"){
-        jogador.defesa += item.efeito;
-    }else{
-        jogador.inventario.push(item);
-    }
-    console.log(`${heroi.nome} comprou ${item.nome}. Ouro restante: ${heroi.ouro}`);
-}
-
-function usar_pocao(Jogador){
-    for( let i = 0; i < jogador.inventario.length; i++){
-        if (heroi.inventario[i].tipo === "consumivel"){
-            heroi.curar(jogador.inventario[i].efeito);
-            jogador.inventario.splice(i, 1);
-        }
-    }
-    console.log("Você não possui poções.")
-}
-
 function escreverLog(mensagem){
     const caixa = document.getElementById("log");
     caixa.innerHTML += `<p>${mensagem}</p>`;
@@ -291,34 +307,42 @@ function escreverLog(mensagem){
 function limparLog(){
     document.getElementById("log").innerHTML = "";
 }
+
+limparLog()
+
+rederFicha(jogador){
+    escreverLog("Você entra na masmorra");
+}
+
 async function iniciarMasmorra() {
     for (let i = 0; i < masmorra.length; i++) {
         if (!jogador.estaVivo()) {
             break;
         }
-
         console.log(`\n=== Andar ${i + 1} ===`);
+        jogador.comprar(loja);
         console.log(`Um ${masmorra[i].nome} apareceu!`);
         await batalhar(jogador, masmorra[i], jogador);
     }
     rl.close();
 }
+
+const loja = [
+    {nome: "Poção de Vida", tipo: "pocao", preco: 30, efeito: 50},
+    {nome: "Espada reta", tipo: "arma", preco: 50, efeito: 20},
+    {nome: "Cota de malha", tipo: "armadura", preco: 75, efeito: 12},
+];
+
 // === inventário do jogador === ///
 const itens = ["Poção de Vida", "Espada Velha", "Escudo de Madeira"]; 
 
 // As ordens de cada atributo são: nome, classe, vida, vidaMaxima, defesa, ataque, velocidade, nivel, xp, ouro, xpMaximo
-const jogador = criarHeroi("Alexandre", "Mago", 100, 100, 10, 20, 5, 1, 0, 0, 1000)
+const jogador = criarHeroi("Alexandre", "Mago", 100, 100, 10, 20, 5, 1, 0, 0)
 
 // === Invetário do jogador === //
 
 jogador.inventario.push(itens[2]);
 console.log(`Itens no inventário: ${jogador.inventario}`);
-
-const loja = [
-    {nome: "Poção de Vida", tipo: "Consumível", preco: 30, efeito: 50},
-    {nome: "Espada reta", tipo: "arma", preco: 50, efeito: 20},
-    {nome: "Cota de malha", tipo: "armadura", preco: 75, efeito: 12},
-];
 
 for (let i = 0; i < loja.length; i++) {
   console.log(`${i + 1}. ${loja[i].nome} - ${loja[i].preco} ouro`);
@@ -327,10 +351,10 @@ for (let i = 0; i < loja.length; i++) {
 
 // ===Definindo os inimigos que vão aparecer em cada andar === //
 const masmorra = [
-    criarInimigo("Goblin", "Monstro", 20, 20, 5, 10, 6, 1, 10, 10, 0),
-    criarInimigo("Orc", "Monstro", 50, 50, 15, 25, 2, 2, 20, 20, 0),
-    criarInimigo("Morto vivo", "Monstro", 80, 80, 20, 30, 3, 3, 15, 17, 0),
-    criarInimigo("Vasto Lorde das Ruinas", "Monstro", 10000, 10000, 400, 500, 100, 100, 5000, 50000, 0),
+    criarInimigo("Goblin", "Monstro", 20, 20, 5, 10, 6, 1, 10, 10),
+    criarInimigo("Orc", "Monstro", 50, 50, 15, 25, 2, 2, 20, 20),
+    criarInimigo("Morto vivo", "Monstro", 80, 80, 20, 30, 3, 3, 15, 17),
+    criarInimigo("Vasto Lorde das Ruinas", "Monstro", 10000, 10000, 400, 500, 100, 100, 5000, 50000),
 ];
 
 
