@@ -27,7 +27,6 @@ function criarHeroi(nome, classe, vida, vidaMaxima, defesa, ataque, velocidade, 
  
         curar(quantidade){ 
             this.vida += quantidade; 
-
             if(this.vida > this.vidaMaxima){ 
                 this.vida = this.vidaMaxima; 
             } 
@@ -60,6 +59,16 @@ function criarHeroi(nome, classe, vida, vidaMaxima, defesa, ataque, velocidade, 
 
                 console.log(`${this.nome} recuperou ${vida_recuperada} de vida.`); 
             } 
+        }
+
+        subir_nivel(){
+            this.xp -= this.nivel * 100;
+            this.nivel += 1;
+            this.vidaMaxima += 20;
+            this.ataque += 5;
+            this.defesa += 1;
+            this.vida = this.vidaMaxima
+            console.log(`${this.nome} subiu para o nível ${this.nivel}!`);
         }
     } 
 }
@@ -145,7 +154,9 @@ function penalidade_morte(jogador) {
 function ganhar_espolios(jogador, defensor) {
     jogador.ouro += defensor.ouro;
     jogador.xp += defensor.xp;
-
+    while(this.xp >= this.nivel *100){
+        this.subir_nivel();
+    }
     console.log(`${jogador.nome} derrotou ${defensor.nome} e ganhou ${defensor.ouro} de ouro e ${defensor.xp} de experiência.`);
 }
 
