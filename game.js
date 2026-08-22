@@ -42,23 +42,18 @@ function criarHeroi(nome, classe, vida, vidaMaxima, defesa, ataque, velocidade, 
         descansar(){ 
             if(this.vida === this.vidaMaxima){ 
                 console.log('O herói insiste que pode continuar a lutar, sem descansar.'); 
-
             } else if(this.vida < 10){ 
                 console.log('O herói está gravemente debilitado e não consegue descansar.'); 
-
             } else { 
                 let vida_inicial = this.vida; 
-
                 this.vida += 30; 
-
                 if(this.vida > this.vidaMaxima){ 
                     this.vida = this.vidaMaxima; 
                 } 
  
                 let vida_recuperada = this.vida - vida_inicial; 
-
                 console.log(`${this.nome} recuperou ${vida_recuperada} de vida.`); 
-            } 
+            }
         }
 
         subir_nivel(){
@@ -72,6 +67,17 @@ function criarHeroi(nome, classe, vida, vidaMaxima, defesa, ataque, velocidade, 
         }
     } 
 }
+
+function rederficha(jogador){
+    const caixa = document.getElementById("ficha");
+    caixa.innerHTML = `
+    <h2>${jogador.nome} — Nível ${jogador.nivel}</h2>
+    <p>Vida: ${jogador.vida}/ ${jogador.vidaMaxima}</p>
+    <p>Ataque: ${jogador.ataque} |Defesa: ${jogador.defesa}</p>
+    <p>Ouro: ${jogador.ouro} | Xp: ${jogador.xp}</p>
+    `;
+}
+rederficha(jogador);
 
 function criarInimigo(nome, classe, vida, vidaMaxima, defesa, ataque, velocidade, nivel, xp, ouro, xpMaximo) {
     return {
@@ -95,6 +101,23 @@ function criarInimigo(nome, classe, vida, vidaMaxima, defesa, ataque, velocidade
             console.log(`Vida: ${this.vida} | Ataque: ${this.ataque} | Defesa: ${this.defesa}`);
         }
     }
+}
+
+function renderInimigo(inimigo) {
+  const caixa = document.getElementById("inimigo");
+  if (inimigo === undefined || !inimigo.estaVivo()) {
+    caixa.innerHTML = "<p>Nenhum inimigo à vista.</p>";
+    return;
+  }
+  caixa.innerHTML = `
+    <h3>${inimigo.nome}</h3>
+    <p>Vida: ${inimigo.vida}/${inimigo.vidaMaxima}</p>
+  `;
+}
+
+function renderTudo(jogador, inimigo){
+    renderficha(jogador);
+    rederficha(inimigo);
 }
 
 function mostrarFicha(mob){
@@ -260,6 +283,14 @@ function usar_pocao(Jogador){
     console.log("Você não possui poções.")
 }
 
+function escreverLog(mensagem){
+    const caixa = document.getElementById("log");
+    caixa.innerHTML += `<p>${mensagem}</p>`;
+}
+
+function limparLog(){
+    document.getElementById("log").innerHTML = "";
+}
 async function iniciarMasmorra() {
     for (let i = 0; i < masmorra.length; i++) {
         if (!jogador.estaVivo()) {
