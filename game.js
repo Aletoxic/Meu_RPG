@@ -234,10 +234,34 @@ function compararforça(mob1, mob2) {
     }
 }
 
+function comprar(jogador, item){
+    if(jogador.ouro > item.preco){
+        console.log("Você tenta comprar o item, mas o vendendor franse a testa e fala que você não tem dinheiro o suficiente.");
+        return;
+    }
+    jogador.ouro -= item.preco;
+    if(item.preco === "arma") {
+        jogador.ataque += item.efeito;
+    }else if(item.preco === "armadura"){
+        jogador.defesa += item.efeito;
+    }else{
+        jogador.inventario.push(item);
+    }
+    console.log(`${heroi.nome} comprou ${item.nome}. Ouro restante: ${heroi.ouro}`);
+}
+
+function usar_pocao(Jogador){
+    for( let i = 0; i < jogador.inventario.length; i++){
+        if (heroi.inventario[i].tipo === "consumivel"){
+            heroi.curar(jogador.inventario[i].efeito);
+            jogador.inventario.splice(i, 1);
+        }
+    }
+    console.log("Você não possui poções.")
+}
+
 async function iniciarMasmorra() {
-
     for (let i = 0; i < masmorra.length; i++) {
-
         if (!jogador.estaVivo()) {
             break;
         }
@@ -258,6 +282,17 @@ const jogador = criarHeroi("Alexandre", "Mago", 100, 100, 10, 20, 5, 1, 0, 0, 10
 
 jogador.inventario.push(itens[2]);
 console.log(`Itens no inventário: ${jogador.inventario}`);
+
+const loja = [
+    {nome: "Poção de Vida", tipo: "Consumível", preco: 30, efeito: 50},
+    {nome: "Espada reta", tipo: "arma", preco: 50, efeito: 20},
+    {nome: "Cota de malha", tipo: "armadura", preco: 75, efeito: 12},
+];
+
+for (let i = 0; i < loja.length; i++) {
+  console.log(`${i + 1}. ${loja[i].nome} - ${loja[i].preco} ouro`);
+}
+
 
 // ===Definindo os inimigos que vão aparecer em cada andar === //
 const masmorra = [
